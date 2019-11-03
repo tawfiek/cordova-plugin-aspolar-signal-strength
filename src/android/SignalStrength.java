@@ -1,5 +1,5 @@
 package com.aspolar.plugin;
- 
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.Manifest;
@@ -23,6 +23,7 @@ import org.apache.cordova.PermissionHelper;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class SignalStrength extends CordovaPlugin {
@@ -31,7 +32,7 @@ public class SignalStrength extends CordovaPlugin {
     public int asulevel = -1;
     public int asulevelmax = 31;
     public int dBmlevel = 0;
-    public String result = "";
+    public JSONObject result = new JSONObject();
     public String signalLevel;
     public TelephonyManager tm;
 
@@ -44,8 +45,9 @@ public class SignalStrength extends CordovaPlugin {
         boolean isGetdBm = action.equals("getdBm");
         boolean isGetLevel = action.equals("getLevel");
         boolean isGetPercentage = action.equals("getPercentage");
+        boolean isGetStatus = action.equals("getStatus");
 
-        if (!isGetdBm && !isGetPercentage && !isGetLevel) {
+        if (!isGetdBm && !isGetPercentage && !isGetLevel &&  !isGetStatus) {
             return false;
         }
 
@@ -69,13 +71,18 @@ public class SignalStrength extends CordovaPlugin {
 
         if (isGetPercentage) {
             this.networkType = args.getString(0);
-            this.getPercentage(networkType);
+            result.put("precentage", this.getPercentage(networkType));
         }
         else if (isGetLevel){
-            result = signalLevel;
+            result.put("signalLevel", signalLevel);
+        }
+        else if (isGetdBm){
+            result.put("dBmlevel",  dBmlevel  + "");
         }
         else {
-            result = dBmlevel  + "";
+            result.put("precentage", this.getPercentage(networkType));
+            result.put("signalLevel", signalLevel);
+            result.put("dBmlevel",  dBmlevel  + "");
         }
 
         this.callbackContext.success(result);
@@ -92,12 +99,12 @@ public class SignalStrength extends CordovaPlugin {
             super.onSignalStrengthsChanged(signalStrength);
             asulevel = signalStrength.getGsmSignalStrength();
         }
-    } 
+    }
 
     // SIGNAL STRENGTH INFO
     /* **********************
-                 MIN     MAX 
-    CDMA (2g)   
+                 MIN     MAX
+    CDMA (2g)
         dBm =   -100    -75
         asu =   0       97
     LTE (4g)
@@ -115,20 +122,20 @@ public class SignalStrength extends CordovaPlugin {
 
     ********************* */
 
-    public void getPercentage(String networkType){
+    public String getPercentage(String networkType){
         if(networkType == "wifi"){
             if (dBmlevel <= -100){
-                result =  String.format( "%.2f", 0 );
+                return  String.format( "%.2f", 0 );
             }
             else if (dBmlevel >= -50){
-                result =  String.format( "%.2f", 1 );
+                return String.format( "%.2f", 1 );
             }
             else{
-                result = String.format( "%.2f", (2.0 * (dBmlevel + 100))/100 );
+                return String.format( "%.2f", (2.0 * (dBmlevel + 100))/100 );
             }
         }
         else {
-            result = String.format( "%.2f",  1.0 * asulevel / asulevelmax);
+            return String.format( "%.2f",  1.0 * asulevel / asulevelmax);
         }
     }
 
@@ -191,7 +198,7 @@ public class SignalStrength extends CordovaPlugin {
         }
         else{
             //Mostly for Samsung devices, after checking if the list is indeed empty.
-            try { 
+            try {
                 MyPhoneStateListener MyListener = new MyPhoneStateListener();
                 tm.listen(MyListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
                 int cc = 0;

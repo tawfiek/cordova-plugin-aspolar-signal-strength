@@ -21,6 +21,10 @@ SignalStrength.prototype.getLevel = function (successCallback, errorCallback) {
     exec(successCallback, errorCallback, 'SignalStrength', 'getLevel', []);
 };
 
+// Get signal all status.
+SignalStrength.prototype.getStatus = function (successCallback, errorCallback) {
+	exec(successCallback, errorCallback, 'SignalStrength', 'getStatus', []);
+};
 SignalStrength.install = function () {
   	if (!window.plugins) {
     	window.plugins = {};
