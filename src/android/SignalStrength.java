@@ -82,11 +82,11 @@ public class SignalStrength extends CordovaPlugin {
             result.put("dBmlevel",  dBmlevel  + "");
         }
         else {
+            int linearPower = (1 - (((-1 * dbmMax) - (-1* dBmlevel))/((-1 * dbmMax) - (-1 * dbmMin))));
             result.put("precentage", this.getPercentage(networkType));
             result.put("signalLevel", signalLevel);
             result.put("dBmlevel",  dBmlevel  + "");
-            result.put("linearPower",
-                    100 * (1 - (((-dbmMax) - (-dBmlevel))/((-dbmMax) - (-dbmMin)))));
+            result.put("linearPower", linearPower);
             result.put("dbmMin", dbmMin);
             result.put("dbmMax", dbmMax);
         }
