@@ -32,6 +32,8 @@ public class SignalStrength extends CordovaPlugin {
     public int asulevel = -1;
     public int asulevelmax = 31;
     public int dBmlevel = 0;
+    public int dbmMax = 0;
+    public int dbmMin = 0;
     public JSONObject result = new JSONObject();
     public String signalLevel;
     public TelephonyManager tm;
@@ -83,6 +85,8 @@ public class SignalStrength extends CordovaPlugin {
             result.put("precentage", this.getPercentage(networkType));
             result.put("signalLevel", signalLevel);
             result.put("dBmlevel",  dBmlevel  + "");
+            result.put("linearPower",
+                    String.valueOf(100 * (1 - (((-dbmMax) - (-dBmlevel))/((-dbmMax) - (-dbmMin))))));
         }
 
         this.callbackContext.success(result);
@@ -165,6 +169,8 @@ public class SignalStrength extends CordovaPlugin {
                     dBmlevel = cellSignalStrength.getDbm();
                     asulevel = cellSignalStrength.getAsuLevel();
                     signalLevel =  cellSignalStrength.getLevel() + "";
+                    dbmMax = -120;
+                    dbmMin = -50;
                     asulevelmax = 31;
                 }
                 else if (info instanceof CellInfoCdma) {
@@ -173,6 +179,8 @@ public class SignalStrength extends CordovaPlugin {
                     dBmlevel = cellSignalStrength.getDbm();
                     asulevel = cellSignalStrength.getAsuLevel();
                     signalLevel =  cellSignalStrength.getLevel() + "";
+                    dbmMax = -100;
+                    dbmMin = -75;
                     asulevelmax = 97;
                 }
                 else if (info instanceof CellInfoLte) {
@@ -181,6 +189,8 @@ public class SignalStrength extends CordovaPlugin {
                     dBmlevel = cellSignalStrength.getDbm();
                     asulevel = cellSignalStrength.getAsuLevel();
                     signalLevel =  cellSignalStrength.getLevel() + "";
+                    dbmMax = -140;
+                    dbmMin = -44;
                     asulevelmax = 97;
                 }
                 else if  (info instanceof CellInfoWcdma) {
@@ -189,6 +199,8 @@ public class SignalStrength extends CordovaPlugin {
                     dBmlevel = cellSignalStrength.getDbm();
                     asulevel = cellSignalStrength.getAsuLevel();
                     signalLevel =  cellSignalStrength.getLevel() + "";
+                    dbmMax = -115;
+                    dbmMin = -50;
                     asulevelmax = 31;
                 }
                 else{
@@ -210,6 +222,8 @@ public class SignalStrength extends CordovaPlugin {
                     }
                 }
                 asulevelmax = 31;
+                dbmMin = -120;
+                dbmMax = -50;
                 dBmlevel = -113 + 2 * asulevel;
                 tm.listen(MyListener, PhoneStateListener.LISTEN_NONE);
                 signalLevel = String.format("%.0g%n", 1.0*asulevel/asulevelmax*4);
